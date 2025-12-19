@@ -1,19 +1,33 @@
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pymongo import MongoClient
 from bson import ObjectId
 from datetime import datetime
 import json
+import certifi
 
 app = Flask(__name__)
 CORS(app)
 
 # MongoDB Configuration
-# Atau gunakan MongoDB Atlas:
-MONGO_URI = "mongodb+srv://verilita75_db_user:<db_password>@cluster0.lstkg62.mongodb.net/?appName=Cluster0"
+MONGO_URI = "mongodb+srv://NaufalR4R:IaZEMLLoK0yexUuQ@cluster0.lstkg62.mongodb.net/?appName=Cluster0"
 
 try:
-    client = MongoClient(MONGO_URI)
+    # Ambil path sertifikat dari certifi
+    ca = certifi.where()
+
+    client = MongoClient(
+        MONGO_URI,
+        tls=True,
+        tlsCAFile=ca,  # GUNAKAN INI daripada tlsAllowInvalidCertificates
+        serverSelectionTimeoutMS=5000,
+        connectTimeoutMS=10000
+    )
+    
+    # Test connection
+    client.admin.command('ping')
+    
     db = client['order_service']
     order_collection = db['orders']
     print("✅ Connected to MongoDB - Order Service")
